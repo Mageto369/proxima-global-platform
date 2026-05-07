@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proxima Global — Mission Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --obsidian: #080b0e;
+    --deep: #0d1117;
+    --panel: #111820;
+    --panel-light: #162030;
+    --border: rgba(120,170,140,0.12);
+    --border-bright: rgba(120,200,150,0.25);
+    --green-deep: #0d2b1f;
+    --green-mid: #1a4a33;
+    --green: #2a7a52;
+    --green-bright: #3dba78;
+    --green-glow: rgba(61,186,120,0.15);
+    --amber: #c8a84b;
+    --amber-dim: rgba(200,168,75,0.15);
+    --amber-glow: rgba(200,168,75,0.08);
+    --gold: #e8c96a;
+    --cream: #f0ead8;
+    --white: #ffffff;
+    --text: #c8d4c0;
+    --text-dim: rgba(180,200,170,0.55);
+    --red: #e05c5c;
+    --blue: #4a9ec8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--obsidian);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ─── BACKGROUND TEXTURE ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 10% 20%, rgba(26,74,51,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 85% 80%, rgba(13,27,31,0.3) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(61,186,120,0.04) 0%, transparent 70%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cpath d='M0 60 Q30 30 60 60 T120 60' stroke='rgba(61,186,120,0.04)' fill='none' stroke-width='1'/%3E%3Cpath d='M0 80 Q30 50 60 80 T120 80' stroke='rgba(61,186,120,0.03)' fill='none' stroke-width='1'/%3E%3Cpath d='M0 40 Q30 10 60 40 T120 40' stroke='rgba(61,186,120,0.03)' fill='none' stroke-width='1'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; }
+
+  /* ─── TOPBAR ─── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+    background: rgba(8,11,14,0.9);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+    position: relative;
+  }
+
+  .brand-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--cream);
+    text-transform: uppercase;
+  }
+
+  .brand-name span {
+    color: var(--amber);
+  }
+
+  .brand-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: -4px;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: var(--green-glow);
+    border: 1px solid var(--border-bright);
+    border-radius: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--green-bright);
+    text-transform: uppercase;
+  }
+
+  .pulse {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green-bright);
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--green-bright); }
+
+  /* ─── HERO SECTION ─── */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 0;
+    min-height: 360px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    padding: 3.5rem 3rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--amber);
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.8rem;
+    font-weight: 300;
+    line-height: 1.05;
+    color: var(--cream);
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--green-bright);
+  }
+
+  .hero-sub {
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    max-width: 480px;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 9px 22px;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-primary {
+    background: var(--green-bright);
+    color: var(--obsidian);
+  }
+
+  .btn-primary:hover { background: #55d490; transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-bright);
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--green-bright);
+    color: var(--green-bright);
+  }
+
+  .hero-right {
+    position: relative;
+    background: linear-gradient(135deg, var(--green-deep) 0%, rgba(13,27,31,0.8) 100%);
+    border-left: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ─── AFRICA MAP SVG ─── */
+  .africa-container {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .africa-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 30px rgba(61,186,120,0.3));
+  }
+
+  .kenya-dot {
+    animation: ping 2.5s cubic-bezier(0,0,0.2,1) infinite;
+  }
+
+  @keyframes ping {
+    0% { transform: scale(1); opacity: 1; }
+    75%, 100% { transform: scale(2.5); opacity: 0; }
+  }
+
+  /* ─── OVERLAY LABEL ─── */
+  .map-label {
+    position: absolute;
+    bottom: 40px;
+    right: 20px;
+    text-align: right;
+  }
+
+  .map-label-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--amber);
+    text-transform: uppercase;
+  }
+
+  .map-label-detail {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+  }
+
+  /* ─── METRIC STRIP ─── */
+  .metric-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .metric-cell {
+    padding: 1.75rem 2rem;
+    border-right: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .metric-cell:last-child { border-right: none; }
+
+  .metric-cell::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--green-bright), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .metric-cell:hover::before { opacity: 1; }
+
+  .metric-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+  }
+
+  .metric-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: var(--cream);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .metric-value .unit {
+    font-size: 1.1rem;
+    color: var(--amber);
+    font-weight: 300;
+    margin-left: 2px;
+  }
+
+  .metric-delta {
+    font-size: 0.72rem;
+    color: var(--green-bright);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .metric-delta.neg { color: var(--red); }
+
+  /* ─── MAIN GRID ─── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ─── SECTION HEADERS ─── */
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--cream);
+    letter-spacing: 0.02em;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 0.5rem;
+  }
+
+  /* ─── LEFT PANEL ─── */
+  .left-panel {
+    padding: 2rem 2rem 2rem 2.5rem;
+    border-right: 1px solid var(--border);
+  }
+
+  /* ─── PARTNER CARD (SMACHS) ─── */
+  .partner-card {
+    background: linear-gradient(135deg, var(--green-deep) 0%, var(--panel) 70%);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .partner-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(61,186,120,0.1);
+  }
+
+  .partner-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--green-bright), var(--amber));
+  }
+
+  .partner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    background: var(--amber-dim);
+    border: 1px solid rgba(200,168,75,0.3);
+    border-radius: 3px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 1rem;
+  }
+
+  .partner-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--cream);
+    margin-bottom: 0.25rem;
+  }
+
+  .partner-sub {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+  }
+
+  .partner-sub strong {
+    color: var(--amber);
+    font-weight: 500;
+  }
+
+  .partner-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+
+  .pstat {
+    background: rgba(8,11,14,0.6);
+    padding: 0.85rem;
+  }
+
+  .pstat-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--green-bright);
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .pstat-lbl {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .prog-track {
+    margin-bottom: 0.75rem;
+  }
+
+  .prog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+
+  .prog-label {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  .prog-pct {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--green-bright);
+  }
+
+  .prog-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .prog-fill {
+    height: 100%;
+    border-radius: 2px;
+    position: relative;
+    transition: width 1.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .prog-fill.green { background: linear-gradient(90deg, var(--green-mid), var(--green-bright)); }
+  .prog-fill.amber { background: linear-gradient(90deg, #7a6520, var(--amber)); }
+  .prog-fill.blue { background: linear-gradient(90deg, #1a4060, var(--blue)); }
+
+  /* ─── INFRA PORTFOLIO ─── */
+  .infra-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .infra-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 1.1rem;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .infra-card:hover {
+    border-color: var(--border-bright);
+    background: var(--panel-light);
+  }
+
+  .infra-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .infra-card-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--cream);
+    margin-bottom: 2px;
+  }
+
+  .infra-card-detail {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  .infra-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+
+  .status-active { background: var(--green-bright); box-shadow: 0 0 6px var(--green-bright); }
+  .status-pipeline { background: var(--amber); }
+  .status-planned { background: var(--text-dim); }
+
+  /* ─── RIGHT PANEL ─── */
+  .right-panel {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* ─── ACTIVITY FEED ─── */
+  .activity-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .activity-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .activity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+
+  .a-green { background: var(--green-bright); }
+  .a-amber { background: var(--amber); }
+  .a-blue { background: var(--blue); }
+  .a-red { background: var(--red); }
+
+  .activity-content { flex: 1; }
+
+  .activity-title {
+    font-size: 0.8rem;
+    color: var(--cream);
+    margin-bottom: 2px;
+    font-weight: 500;
+  }
+
+  .activity-meta {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+  }
+
+  /* ─── PIPELINE TABLE ─── */
+  .pipeline-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .pipeline-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  .pipeline-table td {
+    padding: 0.75rem;
+    font-size: 0.78rem;
+    color: var(--text);
+    border-bottom: 1px solid rgba(120,170,140,0.06);
+    vertical-align: middle;
+  }
+
+  .pipeline-table tr:hover td { background: var(--green-glow); }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 0.65rem;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .tag-active { background: rgba(61,186,120,0.15); color: var(--green-bright); border: 1px solid rgba(61,186,120,0.3); }
+  .tag-pipeline { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(200,168,75,0.3); }
+  .tag-planned { background: rgba(74,158,200,0.1); color: var(--blue); border: 1px solid rgba(74,158,200,0.2); }
+  .tag-prospect { background: rgba(180,180,180,0.08); color: var(--text-dim); border: 1px solid var(--border); }
+
+  /* ─── BOTTOM SECTION ─── */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .bottom-cell {
+    padding: 2rem 2rem;
+    border-right: 1px solid var(--border);
+  }
+
+  .bottom-cell:last-child { border-right: none; }
+
+  /* ─── DONUT CHART ─── */
+  .donut-wrap {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 1rem auto;
+  }
+
+  .donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .donut-pct {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--cream);
+    line-height: 1;
+    display: block;
+  }
+
+  .donut-sub {
+    font-size: 0.62rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 0.75rem;
+  }
+
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .legend-row span.val {
+    margin-left: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text);
+  }
+
+  /* ─── SDG BADGES ─── */
+  .sdg-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 0.75rem;
+  }
+
+  .sdg-badge {
+    width: 52px;
+    height: 52px;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    border: 1px solid rgba(255,255,255,0.1);
+    cursor: default;
+    transition: transform 0.15s;
+  }
+
+  .sdg-badge:hover { transform: scale(1.08); }
+
+  .sdg-badge .sdg-num {
+    font-size: 0.5rem;
+    font-weight: 400;
+    opacity: 0.8;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* ─── TABS ─── */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.25rem;
+  }
+
+  .tab {
+    padding: 0.6rem 1.1rem;
+    font-size: 0.75rem;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .tab.active {
+    color: var(--green-bright);
+    border-bottom-color: var(--green-bright);
+  }
+
+  .tab:hover:not(.active) { color: var(--text); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ─── GEOGRAPHIC REACH ─── */
+  .geo-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .geo-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--panel);
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    font-size: 0.78rem;
+    cursor: default;
+    transition: background 0.2s;
+  }
+
+  .geo-row:hover { background: var(--panel-light); }
+
+  .geo-country {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--cream);
+  }
+
+  .geo-flag { font-size: 1rem; }
+
+  .geo-stage {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--text-dim);
+    text-align: right;
+  }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    padding: 1rem 2.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .footer-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .legal-links {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+  }
+
+  .legal-links a {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .legal-links a:hover { color: var(--green-bright); }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--obsidian); }
+  ::-webkit-scrollbar-thumb { background: var(--green-mid); border-radius: 3px; }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .hero { animation: fadeIn 0.8s ease; }
+  .metric-strip { animation: slideUp 0.6s ease 0.2s both; }
+  .main-grid { animation: slideUp 0.6s ease 0.4s both; }
+  .bottom-grid { animation: slideUp 0.6s ease 0.6s both; }
+
+  /* ─── SECTOR BARS ─── */
+  .sector-bar-wrap { display: flex; flex-direction: column; gap: 10px; margin-top: 0.75rem; }
+
+  .sector-row { display: flex; align-items: center; gap: 10px; }
+
+  .sector-name { font-size: 0.73rem; color: var(--text-dim); width: 110px; flex-shrink: 0; }
+
+  .sector-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--panel);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .sector-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1.8s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .sector-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text);
+    width: 32px;
+    text-align: right;
+  }
+
+  /* Highlight box */
+  .highlight-box {
+    background: var(--amber-glow);
+    border: 1px solid rgba(200,168,75,0.2);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin-top: 1rem;
+  }
+
+  .highlight-box p {
+    font-size: 0.78rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .highlight-box p strong {
+    color: var(--amber);
+  }
+
+  /* Number counter */
+  .count-up { display: inline; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ═══════════════ TOPBAR ═══════════════ -->
+  <header class="topbar">
+    <div class="brand">
+      <!-- Logo mark: SVG star/radiant icon -->
+      <div class="brand-mark">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="18" cy="18" r="17" stroke="rgba(61,186,120,0.3)" stroke-width="1"/>
+          <circle cx="18" cy="18" r="12" stroke="rgba(61,186,120,0.5)" stroke-width="1"/>
+          <circle cx="18" cy="18" r="4" fill="#3dba78"/>
+          <line x1="18" y1="1" x2="18" y2="7" stroke="#3dba78" stroke-width="1.5"/>
+          <line x1="18" y1="29" x2="18" y2="35" stroke="#3dba78" stroke-width="1.5"/>
+          <line x1="1" y1="18" x2="7" y2="18" stroke="#3dba78" stroke-width="1.5"/>
+          <line x1="29" y1="18" x2="35" y2="18" stroke="#3dba78" stroke-width="1.5"/>
+          <line x1="5.7" y1="5.7" x2="9.9" y2="9.9" stroke="rgba(61,186,120,0.5)" stroke-width="1.2"/>
+          <line x1="26.1" y1="26.1" x2="30.3" y2="30.3" stroke="rgba(61,186,120,0.5)" stroke-width="1.2"/>
+          <line x1="30.3" y1="5.7" x2="26.1" y2="9.9" stroke="rgba(61,186,120,0.5)" stroke-width="1.2"/>
+          <line x1="9.9" y1="26.1" x2="5.7" y2="30.3" stroke="rgba(61,186,120,0.5)" stroke-width="1.2"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">PROXIMA <span>GLOBAL</span></div>
+        <div class="brand-tag">Agricultural Technology Infrastructure</div>
+      </div>
+    </div>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="#">Overview</a></li>
+        <li><a href="#">Deployments</a></li>
+        <li><a href="#">Impact</a></li>
+        <li><a href="#">Partners</a></li>
+        <li><a href="#">Reports</a></li>
+      </ul>
+    </nav>
+    <div class="topbar-right">
+      <div class="status-pill">
+        <div class="pulse"></div>
+        1 Active Deployment
+      </div>
+      <button class="btn btn-primary">+ New Partnership</button>
+    </div>
+  </header>
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Mission Dashboard — FY 2025</div>
+      <h1>Owning the <em>infrastructure</em> of African agriculture</h1>
+      <p class="hero-sub">Proxima Global (Texas, USA) acquires, develops, and deploys agricultural technology systems through vetted African partner organizations — combining American capital efficiency with local implementation excellence.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary">View SMACHS Deployment</button>
+        <button class="btn btn-ghost">Add Partner Organization</button>
+      </div>
+    </div>
+    <div class="hero-right">
+      <!-- Africa map SVG -->
+      <div class="africa-container">
+        <svg class="africa-svg" viewBox="0 0 300 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Africa continent outline (simplified) -->
+          <path d="M108,10 L145,8 L175,15 L195,22 L210,35 L218,50 L220,68 L215,82 L225,95 L232,115 L235,135 L232,155 L238,170 L240,190 L236,210 L228,230 L218,248 L205,265 L190,278 L175,290 L160,300 L148,308 L138,312 L128,308 L115,298 L100,285 L85,268 L72,250 L62,230 L55,210 L52,190 L55,170 L60,150 L58,130 L55,110 L58,90 L65,72 L75,58 L85,45 L95,30 L108,10Z"
+            fill="rgba(26,74,51,0.5)" stroke="rgba(61,186,120,0.5)" stroke-width="1.5"/>
+          <!-- Horn of Africa -->
+          <path d="M235,135 L242,128 L250,120 L255,110 L252,100 L245,108 L238,120 L235,135Z"
+            fill="rgba(26,74,51,0.5)" stroke="rgba(61,186,120,0.5)" stroke-width="1.5"/>
+          <!-- Madagascar -->
+          <path d="M252,175 L258,170 L264,180 L266,198 L262,212 L256,220 L250,210 L248,195 L250,183 L252,175Z"
+            fill="rgba(26,74,51,0.4)" stroke="rgba(61,186,120,0.3)" stroke-width="1"/>
+
+          <!-- Country grid lines - subtle -->
+          <line x1="60" y1="150" x2="238" y2="150" stroke="rgba(61,186,120,0.07)" stroke-width="0.5" stroke-dasharray="4,6"/>
+          <line x1="60" y1="200" x2="235" y2="200" stroke="rgba(61,186,120,0.07)" stroke-width="0.5" stroke-dasharray="4,6"/>
+          <line x1="145" y1="8" x2="148" y2="312" stroke="rgba(61,186,120,0.07)" stroke-width="0.5" stroke-dasharray="4,6"/>
+
+          <!-- KENYA dot (approx lat -1.3, lon 36.8 → ~x=185, y=185) -->
+          <circle cx="188" cy="182" r="12" fill="rgba(61,186,120,0.08)" stroke="none"/>
+          <circle cx="188" cy="182" r="7" fill="rgba(61,186,120,0.15)" stroke="none"/>
+          <circle cx="188" cy="182" r="5" fill="var(--green-bright)" stroke="none" class="kenya-dot"/>
+          <circle cx="188" cy="182" r="3" fill="#fff"/>
+
+          <!-- Label KENYA -->
+          <text x="197" y="178" font-family="Space Mono, monospace" font-size="6" fill="rgba(61,186,120,0.9)" letter-spacing="1.5">KENYA</text>
+          <text x="197" y="187" font-family="Space Mono, monospace" font-size="5" fill="rgba(200,168,75,0.8)" letter-spacing="1">SMACHS ●</text>
+
+          <!-- Connecting line to label -->
+          <line x1="188" y1="182" x2="196" y2="182" stroke="rgba(61,186,120,0.4)" stroke-width="0.5"/>
+
+          <!-- Other potential dots (dimmer) -->
+          <circle cx="148" cy="148" r="3" fill="rgba(200,168,75,0.4)"/>
+          <circle cx="168" cy="165" r="3" fill="rgba(200,168,75,0.3)"/>
+          <circle cx="125" cy="170" r="3" fill="rgba(100,160,100,0.3)"/>
+          <circle cx="155" cy="205" r="3" fill="rgba(100,160,100,0.3)"/>
+
+          <!-- Compass rose (bottom left) -->
+          <g transform="translate(78, 290)">
+            <circle r="12" fill="rgba(8,11,14,0.8)" stroke="rgba(61,186,120,0.2)" stroke-width="0.5"/>
+            <text x="-3" y="-5" font-family="Space Mono" font-size="6" fill="rgba(61,186,120,0.6)">N</text>
+            <line x1="0" y1="-8" x2="0" y2="8" stroke="rgba(61,186,120,0.3)" stroke-width="0.5"/>
+            <line x1="-8" y1="0" x2="8" y2="0" stroke="rgba(61,186,120,0.3)" stroke-width="0.5"/>
+          </g>
+        </svg>
+      </div>
+      <div class="map-label">
+        <div class="map-label-name">Active Zone</div>
+        <div class="map-label-detail">East Africa · Kenya</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ METRIC STRIP ═══════════════ -->
+  <div class="metric-strip">
+    <div class="metric-cell">
+      <div class="metric-label">Infrastructure Value</div>
+      <div class="metric-value"><span class="count-up" data-target="2.4" data-decimals="1">0</span><span class="unit">M USD</span></div>
+      <div class="metric-delta">▲ 18% vs last quarter</div>
+    </div>
+    <div class="metric-cell">
+      <div class="metric-label">Partner Orgs</div>
+      <div class="metric-value"><span class="count-up" data-target="1" data-decimals="0">0</span></div>
+      <div class="metric-delta">+ 3 in pipeline</div>
+    </div>
+    <div class="metric-cell">
+      <div class="metric-label">Farmers Reached</div>
+      <div class="metric-value"><span class="count-up" data-target="4200" data-decimals="0">0</span></div>
+      <div class="metric-delta">▲ SMACHS deployment</div>
+    </div>
+    <div class="metric-cell">
+      <div class="metric-label">Hectares Enabled</div>
+      <div class="metric-value"><span class="count-up" data-target="8500" data-decimals="0">0</span></div>
+      <div class="metric-delta">▲ Phase 1 complete</div>
+    </div>
+    <div class="metric-cell">
+      <div class="metric-label">Countries Targeted</div>
+      <div class="metric-value"><span class="count-up" data-target="7" data-decimals="0">0</span></div>
+      <div class="metric-delta">24-month expansion plan</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ MAIN GRID ═══════════════ -->
+  <div class="main-grid">
+
+    <!-- LEFT -->
+    <div class="left-panel">
+
+      <!-- SMACHS PARTNER CARD -->
+      <div class="section-eyebrow">Flagship Deployment Partner</div>
+      <div class="partner-card">
+        <div class="partner-badge">
+          🇰🇪 &nbsp; Active — Kenya
+        </div>
+        <div class="partner-name">SMACHS Foundation</div>
+        <div class="partner-sub">
+          Founded by <strong>Charlene Ruto</strong>, daughter of President William Ruto (Kenya). SMACHS focuses on smallholder farmer empowerment and rural livelihoods across Central Kenya, Rift Valley, and Coast regions. Proxima Global provides the core agri-tech hardware and software infrastructure; SMACHS handles community integration and farmer training.
+        </div>
+
+        <div class="partner-stats">
+          <div class="pstat">
+            <div class="pstat-val">4,200</div>
+            <div class="pstat-lbl">Farmers</div>
+          </div>
+          <div class="pstat">
+            <div class="pstat-val">3</div>
+            <div class="pstat-lbl">Regions</div>
+          </div>
+          <div class="pstat">
+            <div class="pstat-val">8,500</div>
+            <div class="pstat-lbl">Hectares</div>
+          </div>
+        </div>
+
+        <div class="prog-track">
+          <div class="prog-header">
+            <span class="prog-label">IoT Sensor Network Deployment</span>
+            <span class="prog-pct">78%</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill green" style="width:78%"></div></div>
+        </div>
+        <div class="prog-track">
+          <div class="prog-header">
+            <span class="prog-label">Precision Irrigation Systems</span>
+            <span class="prog-pct">55%</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill amber" style="width:55%"></div></div>
+        </div>
+        <div class="prog-track">
+          <div class="prog-header">
+            <span class="prog-label">Farmer Training & Onboarding</span>
+            <span class="prog-pct">91%</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill green" style="width:91%"></div></div>
+        </div>
+        <div class="prog-track">
+          <div class="prog-header">
+            <span class="prog-label">Market Linkage Platform</span>
+            <span class="prog-pct">30%</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill blue" style="width:30%"></div></div>
+        </div>
+
+        <div class="highlight-box" style="margin-top:1.1rem;">
+          <p>Partnership structure: Proxima Global retains <strong>infrastructure ownership</strong>. SMACHS Foundation holds an exclusive <strong>25-year deployment license</strong> for Kenya. Revenue-share: 70% to local impact fund, 30% to Proxima infrastructure reinvestment pool.</p>
+        </div>
+      </div>
+
+      <!-- INFRASTRUCTURE PORTFOLIO -->
+      <div class="section-title">Infrastructure Portfolio</div>
+      <div class="infra-grid">
+        <div class="infra-card">
+          <div class="infra-status status-active"></div>
+          <span class="infra-icon">🛰️</span>
+          <div class="infra-card-name">IoT Sensor Arrays</div>
+          <div class="infra-card-detail">Soil moisture, temperature & nutrient sensors. 2,400 units deployed in Kenya.</div>
+        </div>
+        <div class="infra-card">
+          <div class="infra-status status-active"></div>
+          <span class="infra-icon">💧</span>
+          <div class="infra-card-name">Smart Irrigation</div>
+          <div class="infra-card-detail">Solar-powered drip systems with AI scheduling. 340 installations active.</div>
+        </div>
+        <div class="infra-card">
+          <div class="infra-status status-pipeline"></div>
+          <span class="infra-icon">🌤️</span>
+          <div class="infra-card-name">Weather Stations</div>
+          <div class="infra-card-detail">Hyper-local micro-weather grid. 80 stations ordered, deploying Q3 2025.</div>
+        </div>
+        <div class="infra-card">
+          <div class="infra-status status-active"></div>
+          <span class="infra-icon">🤖</span>
+          <div class="infra-card-name">AI Crop Analytics</div>
+          <div class="infra-card-detail">Computer vision + yield prediction platform. SaaS licensed to SMACHS.</div>
+        </div>
+        <div class="infra-card">
+          <div class="infra-status status-pipeline"></div>
+          <span class="infra-icon">📱</span>
+          <div class="infra-card-name">Farmer Mobile App</div>
+          <div class="infra-card-detail">Swahili/English advisory app. Beta: 1,200 users. Full rollout Q2 2025.</div>
+        </div>
+        <div class="infra-card">
+          <div class="infra-status status-planned"></div>
+          <span class="infra-icon">🏪</span>
+          <div class="infra-card-name">Market Linkage Hub</div>
+          <div class="infra-card-detail">Direct-to-buyer commodity marketplace. Architecture complete, pre-launch.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-panel">
+
+      <!-- ACTIVITY FEED -->
+      <div>
+        <div class="section-eyebrow">Live Activity</div>
+        <div class="section-title">Recent Updates</div>
+
+        <div class="activity-item">
+          <div class="activity-dot a-green"></div>
+          <div class="activity-content">
+            <div class="activity-title">SMACHS Phase 1 — IoT sensors reach 78% coverage</div>
+            <div class="activity-meta">Kiambu &amp; Nakuru counties · 2 hours ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot a-amber"></div>
+          <div class="activity-content">
+            <div class="activity-title">MOU signed — Uganda partner scoping begins</div>
+            <div class="activity-meta">Kampala · Yesterday · Legal team</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot a-blue"></div>
+          <div class="activity-content">
+            <div class="activity-title">Infrastructure audit report submitted to USAID</div>
+            <div class="activity-meta">Proxima HQ (Texas) · 3 days ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot a-green"></div>
+          <div class="activity-content">
+            <div class="activity-title">340th smart irrigation unit commissioned</div>
+            <div class="activity-meta">Meru County, Kenya · 5 days ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot a-amber"></div>
+          <div class="activity-content">
+            <div class="activity-title">Weather station procurement order finalized</div>
+            <div class="activity-meta">$180K order · Shipping Q3 2025</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot a-blue"></div>
+          <div class="activity-content">
+            <div class="activity-title">Rwanda partnership application received</div>
+            <div class="activity-meta">Under review · Due diligence phase</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEPLOYMENT PIPELINE -->
+      <div>
+        <div class="section-eyebrow">Expansion Pipeline</div>
+        <div class="section-title">Partner Pipeline</div>
+
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab(this, 'tab-countries')">By Country</button>
+          <button class="tab" onclick="switchTab(this, 'tab-sector')">By Sector</button>
+        </div>
+
+        <div id="tab-countries" class="tab-content active">
+          <div class="geo-list">
+            <div class="geo-row">
+              <div class="geo-country"><span class="geo-flag">🇰🇪</span> Kenya — SMACHS Foundation</div>
+              <div class="geo-stage"><span class="tag tag-active">Active</span></div>
+            </div>
+            <div class="geo-row">
+              <div class="geo-country"><span class="geo-flag">🇺🇬</span> Uganda — AgriReach Uganda</div>
+              <div class="geo-stage"><span class="tag tag-pipeline">MOU Signed</span></div>
+            </div>
+            <div class="geo-row">
+              <div class="geo-country"><span class="geo-flag">🇷🇼</span> Rwanda — Ineza Co-op</div>
+              <div class="geo-stage"><span class="tag tag-pipeline">In Review</span></div>
+            </div>
+            <div class="geo-row">
+              <div class="geo-country"><span class="geo-flag">🇹🇿</span> Tanzania — TBD</div>
+              <div class="geo-stage"><span class="tag tag-planned">Planned '26</span></div>
+            </div>
+            <div class="geo-row">
+              <div class="geo-country"><span class="geo-flag">🇬🇭</span> Ghana — TBD</div>
+              <div class="geo-stage"><span class="tag tag-prospect">Prospect</span></div>
+            </div>
+            <div class="geo-row">
+              <div class="geo-country"><span class="geo-flag">🇳🇬</span> Nigeria — TBD</div>
+              <div class="geo-stage"><span class="tag tag-prospect">Prospect</span></div>
+            </div>
+            <div class="geo-row">
+              <div class="geo-country"><span class="geo-flag">🇿🇦</span> South Africa — TBD</div>
+              <div class="geo-stage"><span class="tag tag-prospect">Prospect</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-sector" class="tab-content">
+          <div class="sector-bar-wrap">
+            <div class="sector-row">
+              <div class="sector-name">IoT Infrastructure</div>
+              <div class="sector-bar"><div class="sector-fill" style="width:88%; background: linear-gradient(90deg, #1a4a33, #3dba78);"></div></div>
+              <div class="sector-val">88%</div>
+            </div>
+            <div class="sector-row">
+              <div class="sector-name">Irrigation Systems</div>
+              <div class="sector-bar"><div class="sector-fill" style="width:62%; background: linear-gradient(90deg, #7a6520, #c8a84b);"></div></div>
+              <div class="sector-val">62%</div>
+            </div>
+            <div class="sector-row">
+              <div class="sector-name">AI / Analytics</div>
+              <div class="sector-bar"><div class="sector-fill" style="width:74%; background: linear-gradient(90deg, #1a4060, #4a9ec8);"></div></div>
+              <div class="sector-val">74%</div>
+            </div>
+            <div class="sector-row">
+              <div class="sector-name">Farmer Training</div>
+              <div class="sector-bar"><div class="sector-fill" style="width:91%; background: linear-gradient(90deg, #1a4a33, #3dba78);"></div></div>
+              <div class="sector-val">91%</div>
+            </div>
+            <div class="sector-row">
+              <div class="sector-name">Market Linkage</div>
+              <div class="sector-bar"><div class="sector-fill" style="width:30%; background: linear-gradient(90deg, #3a2060, #8a5ec8);"></div></div>
+              <div class="sector-val">30%</div>
+            </div>
+            <div class="sector-row">
+              <div class="sector-name">Weather Systems</div>
+              <div class="sector-bar"><div class="sector-fill" style="width:45%; background: linear-gradient(90deg, #1a4060, #4a9ec8);"></div></div>
+              <div class="sector-val">45%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════ BOTTOM GRID ═══════════════ -->
+  <div class="bottom-grid">
+
+    <!-- IMPACT ALLOCATION -->
+    <div class="bottom-cell">
+      <div class="section-eyebrow">Resource Allocation</div>
+      <div class="section-title">Budget Breakdown</div>
+      <div class="donut-wrap">
+        <svg viewBox="0 0 140 140" width="140" height="140">
+          <!-- Donut segments (total circumference ≈ 283 for r=45) -->
+          <circle cx="70" cy="70" r="45" fill="none" stroke="#1a4a33" stroke-width="18"/>
+          <!-- Infrastructure 45% -->
+          <circle cx="70" cy="70" r="45" fill="none" stroke="#3dba78" stroke-width="18"
+            stroke-dasharray="127 156" stroke-dashoffset="0" stroke-linecap="butt" transform="rotate(-90 70 70)"/>
+          <!-- Training 22% -->
+          <circle cx="70" cy="70" r="45" fill="none" stroke="#c8a84b" stroke-width="18"
+            stroke-dasharray="62 221" stroke-dashoffset="-127" stroke-linecap="butt" transform="rotate(-90 70 70)"/>
+          <!-- Ops 18% -->
+          <circle cx="70" cy="70" r="45" fill="none" stroke="#4a9ec8" stroke-width="18"
+            stroke-dasharray="51 232" stroke-dashoffset="-189" stroke-linecap="butt" transform="rotate(-90 70 70)"/>
+          <!-- Reserve 15% -->
+          <circle cx="70" cy="70" r="45" fill="none" stroke="#2a3a4a" stroke-width="18"
+            stroke-dasharray="42 241" stroke-dashoffset="-240" stroke-linecap="butt" transform="rotate(-90 70 70)"/>
+        </svg>
+        <div class="donut-center">
+          <span class="donut-pct">$2.4M</span>
+          <span class="donut-sub">Total</span>
+        </div>
+      </div>
+      <div class="donut-legend">
+        <div class="legend-row">
+          <div class="legend-dot" style="background:#3dba78"></div>
+          Infrastructure & Equipment
+          <span class="val">45%</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-dot" style="background:#c8a84b"></div>
+          Partner Training & Support
+          <span class="val">22%</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-dot" style="background:#4a9ec8"></div>
+          Operations & Tech
+          <span class="val">18%</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-dot" style="background:#2a3a4a"></div>
+          Strategic Reserve
+          <span class="val">15%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMPACT METRICS -->
+    <div class="bottom-cell">
+      <div class="section-eyebrow">UN SDG Alignment</div>
+      <div class="section-title">Impact Framework</div>
+      <div class="sdg-grid">
+        <div class="sdg-badge" style="background: rgba(38,156,103,0.2); color: #3dba78;" title="SDG 2: Zero Hunger">
+          🌾 <span class="sdg-num">SDG 2</span>
+        </div>
+        <div class="sdg-badge" style="background: rgba(255,215,0,0.1); color: #c8a84b;" title="SDG 8: Decent Work & Economic Growth">
+          📈 <span class="sdg-num">SDG 8</span>
+        </div>
+        <div class="sdg-badge" style="background: rgba(74,158,200,0.15); color: #4a9ec8;" title="SDG 9: Industry, Innovation">
+          🔬 <span class="sdg-num">SDG 9</span>
+        </div>
+        <div class="sdg-badge" style="background: rgba(238,100,100,0.12); color: #e88888;" title="SDG 10: Reduced Inequalities">
+          ⚖️ <span class="sdg-num">SDG 10</span>
+        </div>
+        <div class="sdg-badge" style="background: rgba(38,156,103,0.12); color: #5ac89a;" title="SDG 13: Climate Action">
+          🌍 <span class="sdg-num">SDG 13</span>
+        </div>
+        <div class="sdg-badge" style="background: rgba(200,168,75,0.1); color: #d4b060;" title="SDG 17: Partnerships">
+          🤝 <span class="sdg-num">SDG 17</span>
+        </div>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <div class="prog-track">
+          <div class="prog-header">
+            <span class="prog-label">Food Security Improvement</span>
+            <span class="prog-pct" style="color:var(--amber)">+34% avg</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill amber" style="width:68%"></div></div>
+        </div>
+        <div class="prog-track">
+          <div class="prog-header">
+            <span class="prog-label">Water Use Efficiency</span>
+            <span class="prog-pct">+52%</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill green" style="width:82%"></div></div>
+        </div>
+        <div class="prog-track">
+          <div class="prog-header">
+            <span class="prog-label">Farmer Income Growth</span>
+            <span class="prog-pct" style="color:var(--amber)">+28%</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill amber" style="width:56%"></div></div>
+        </div>
+        <div class="prog-track">
+          <div class="prog-header">
+            <span class="prog-label">Yield Increase (SMACHS fields)</span>
+            <span class="prog-pct">+41%</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill green" style="width:72%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PIPELINE TIMELINE -->
+    <div class="bottom-cell">
+      <div class="section-eyebrow">Execution Timeline</div>
+      <div class="section-title">Milestone Tracker</div>
+
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+
+        <div style="display:flex; gap:14px; align-items:flex-start;">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:0; flex-shrink:0;">
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--green-bright);margin-top:3px;"></div>
+            <div style="width:1px;flex:1;background:var(--border);min-height:28px;"></div>
+          </div>
+          <div>
+            <div style="font-size:0.8rem;color:var(--cream);font-weight:500;">Q1 2025 — SMACHS Phase 1 Launch</div>
+            <div style="font-size:0.7rem;color:var(--text-dim);">IoT sensor deployment, first 2,000 farmers onboarded in Kiambu &amp; Nakuru</div>
+          </div>
+          <span class="tag tag-active" style="flex-shrink:0;margin-top:2px;">Done</span>
+        </div>
+
+        <div style="display:flex; gap:14px; align-items:flex-start;">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:0; flex-shrink:0;">
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--amber);margin-top:3px;"></div>
+            <div style="width:1px;flex:1;background:var(--border);min-height:28px;"></div>
+          </div>
+          <div>
+            <div style="font-size:0.8rem;color:var(--cream);font-weight:500;">Q2 2025 — Smart Irrigation + App Launch</div>
+            <div style="font-size:0.7rem;color:var(--text-dim);">Complete irrigation rollout, mobile app to 4,200 farmers, weather stations ship</div>
+          </div>
+          <span class="tag tag-pipeline" style="flex-shrink:0;margin-top:2px;">Active</span>
+        </div>
+
+        <div style="display:flex; gap:14px; align-items:flex-start;">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:0; flex-shrink:0;">
+            <div style="width:10px;height:10px;border-radius:50%;border:1px solid var(--blue);margin-top:3px;"></div>
+            <div style="width:1px;flex:1;background:var(--border);min-height:28px;"></div>
+          </div>
+          <div>
+            <div style="font-size:0.8rem;color:var(--cream);font-weight:500;">Q3 2025 — Uganda MOU Activation</div>
+            <div style="font-size:0.7rem;color:var(--text-dim);">AgriReach Uganda partnership formalizes, first equipment procurement begins</div>
+          </div>
+          <span class="tag tag-planned" style="flex-shrink:0;margin-top:2px;">Q3 '25</span>
+        </div>
+
+        <div style="display:flex; gap:14px; align-items:flex-start;">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:0; flex-shrink:0;">
+            <div style="width:10px;height:10px;border-radius:50%;border:1px solid var(--border-bright);margin-top:3px;"></div>
+            <div style="width:1px;flex:1;background:var(--border);min-height:28px;"></div>
+          </div>
+          <div>
+            <div style="font-size:0.8rem;color:var(--cream);font-weight:500;">Q4 2025 — Market Linkage Go-Live</div>
+            <div style="font-size:0.7rem;color:var(--text-dim);">SMACHS marketplace launches, connecting 4,200 farmers to Nairobi buyers</div>
+          </div>
+          <span class="tag tag-prospect" style="flex-shrink:0;margin-top:2px;">Q4 '25</span>
+        </div>
+
+        <div style="display:flex; gap:14px; align-items:flex-start;">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:0; flex-shrink:0;">
+            <div style="width:10px;height:10px;border-radius:50%;border:1px solid var(--border-bright);margin-top:3px;"></div>
+          </div>
+          <div>
+            <div style="font-size:0.8rem;color:var(--cream);font-weight:500;">2026 — 5-Country Deployment</div>
+            <div style="font-size:0.7rem;color:var(--text-dim);">Kenya + Uganda + Rwanda + Tanzania + Ghana. 25,000 farmers target.</div>
+          </div>
+          <span class="tag tag-prospect" style="flex-shrink:0;margin-top:2px;">2026</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer class="footer">
+    <div class="footer-left">
+      © 2025 Proxima Global Inc. · Texas 501(c)(3) · EIN 00-0000000 · proxima.global
+    </div>
+    <div class="footer-right">
+      <ul class="legal-links">
+        <li><a href="#">Annual Report</a></li>
+        <li><a href="#">Partnership Terms</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+      <div class="status-pill">
+        <div class="pulse"></div>
+        Dashboard Live
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /wrap -->
+
+<script>
+  // ─── TAB SWITCHER ───
+  function switchTab(el, targetId) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById(targetId).classList.add('active');
+  }
+
+  // ─── COUNT-UP ANIMATION ───
+  function animateCounter(el) {
+    const target = parseFloat(el.dataset.target);
+    const decimals = parseInt(el.dataset.decimals || 0);
+    const duration = 1800;
+    const start = performance.now();
+
+    function update(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = target * eased;
+
+      if (decimals > 0) {
+        el.textContent = current.toFixed(decimals);
+      } else {
+        el.textContent = Math.floor(current).toLocaleString();
+      }
+
+      if (progress < 1) requestAnimationFrame(update);
+      else {
+        el.textContent = decimals > 0 ? target.toFixed(decimals) : target.toLocaleString();
+      }
+    }
+    requestAnimationFrame(update);
+  }
+
+  // ─── INTERSECTION OBSERVER FOR COUNTERS ───
+  const counters = document.querySelectorAll('.count-up');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounter(entry.target);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  counters.forEach(c => observer.observe(c));
+
+  // ─── PROGRESS BAR ANIMATION ───
+  const progFills = document.querySelectorAll('.prog-fill');
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const targetW = el.style.width;
+        el.style.width = '0%';
+        setTimeout(() => { el.style.width = targetW; }, 100);
+        barObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  progFills.forEach(b => {
+    const w = b.style.width;
+    b.style.width = '0%';
+    b.dataset.target = w;
+    barObserver.observe(b);
+  });
+
+  // ─── LIVE CLOCK IN STATUS ───
+  function updateClock() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-US', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      timeZone: 'America/Chicago'
+    });
+    document.title = `Proxima Global — ${timeStr} CST`;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // ─── MICRO HOVER FX ON INFRA CARDS ───
+  document.querySelectorAll('.infra-card').forEach(card => {
+    card.addEventListener('mouseenter', () => {
+      card.style.transform = 'translateY(-3px)';
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+</script>
+</body>
+</html>
